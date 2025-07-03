@@ -2,7 +2,7 @@
  Paginazione infinita con indicatore laterale
 */
 
-// Generazione dinamica indicatore posizione pagina
+// Caricamento progressivo articoli e gestione indicatore laterale
 
 
 const blog = {
