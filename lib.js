@@ -18,11 +18,30 @@ async function initBlog() {
   blog.posts = await postsData.json();
   // Solo 25 articoli
   blog.posts = blog.posts.slice(0, 25);
+  // Calcola numero di pagine
+  blog.totalPage = Math.ceil(blog.posts.length / blog.itemsPerPage);
+  initIndicatoriPaginazione();
   showPosts();
 }
 
-
-
+function initIndicatoriPaginazione() {
+  blog.pagePositionWrapper.innerHTML = '';
+  for (let i = 0; i < blog.totalPage; i++) {
+    const span = document.createElement('span');
+    span.className = 'position' + (i === blog.currentPage ? ' active' : '');
+    span.textContent = i + 1;
+    // span.addEventListener('click', () => {
+    //   blog.currentPage = i;
+    //   showPosts();
+    //   // Aggiorna lo stato attivo
+    //   const allSpans = blog.pagePositionWrapper.querySelectorAll('.position');
+    //   allSpans.forEach((el, idx) => {
+    //     el.classList.toggle('active', idx === i);
+    //   });
+    // });
+    blog.pagePositionWrapper.appendChild(span);
+  }
+}
 
 function showPosts() {
   let start = blog.currentPage * blog.itemsPerPage;
