@@ -1,10 +1,7 @@
 /*
  Paginazione infinita con indicatore laterale
 */
-
 // TODO: Caricamento progressivo articoli e gestione indicatore laterale
-
-
 const blog = {
   itemsPerPage: 5,
   currentPage: 0,
@@ -18,7 +15,6 @@ const blog = {
 window.addEventListener('scroll', () => {
   let { scrollHeight, clientHeight, scrollTop } = document.documentElement;
   let maxScroll = scrollHeight - clientHeight;
-
   if ((scrollTop >= maxScroll - 1) && (blog.currentPage < blog.totalPage - 1)) {
     blog.previousStatePage = blog.currentPage;
     blog.currentPage++;
@@ -35,15 +31,15 @@ window.addEventListener('scroll', () => {
 function setIndicatoreAttivo() {
   let indicatori = blog.pagePositionWrapper.querySelectorAll('span');
   indicatori.forEach((span, index) => {
-    if (index === blog.previousStatePage) {
-      span.classList.remove('active');
-    }
+    // Rimuovi active da tutti gli indicatori
+    span.classList.remove('active');
+
+    // Aggiungi active solo alla pagina corrente
     if (index === blog.currentPage) {
       span.classList.add('active');
     }
   });
 }
-
 
 async function initBlog() {
   const postsData = await fetch('https://jsonplaceholder.typicode.com/posts');
@@ -83,4 +79,4 @@ function createPostHTML(post, index) {
   `;
 }
 
-initBlog();
+initBlog()
