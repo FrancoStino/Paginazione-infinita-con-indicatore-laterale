@@ -2,16 +2,48 @@
  Paginazione infinita con indicatore laterale
 */
 
-// Caricamento progressivo articoli e gestione indicatore laterale
+// TODO: Caricamento progressivo articoli e gestione indicatore laterale
 
 
 const blog = {
   itemsPerPage: 5,
   currentPage: 0,
+  previousStatePage: 0,
   totalPage: 0,
   blogWrapper: document.getElementById('blog-w'),
   pagePositionWrapper: document.getElementById('page-position-w')
 }
+
+// Creazione indicatore laterale sia in avanti che indietro dinamicamente con scroll infinito
+window.addEventListener('scroll', () => {
+  let { scrollHeight, clientHeight, scrollTop } = document.documentElement;
+  let maxScroll = scrollHeight - clientHeight;
+
+  if ((scrollTop >= maxScroll - 1) && (blog.currentPage < blog.totalPage - 1)) {
+    blog.previousStatePage = blog.currentPage;
+    blog.currentPage++;
+    showPosts();
+    setIndicatoreAttivo(blog.currentPage, blog.previousStatePage);
+  } else if (scrollTop <= 1 && blog.currentPage > 0) {
+    blog.previousStatePage = blog.currentPage;
+    blog.currentPage--;
+    showPosts();
+    setIndicatoreAttivo(blog.currentPage, blog.previousStatePage);
+  }
+});
+
+function setIndicatoreAttivo() {
+  let indicatori = blog.pagePositionWrapper.querySelectorAll('span');
+  indicatori.forEach((span, index) => {
+    if (index === blog.previousStatePage) {
+      span.classList.remove('active');
+    }
+    if (index === blog.currentPage) {
+      span.classList.add('active');
+    }
+  });
+}
+
 
 async function initBlog() {
   const postsData = await fetch('https://jsonplaceholder.typicode.com/posts');
@@ -25,20 +57,9 @@ async function initBlog() {
 }
 
 function initIndicatoriPaginazione() {
-  blog.pagePositionWrapper.innerHTML = '';
   for (let i = 0; i < blog.totalPage; i++) {
     const span = document.createElement('span');
     span.className = 'position' + (i === blog.currentPage ? ' active' : '');
-    span.textContent = i + 1;
-    // span.addEventListener('click', () => {
-    //   blog.currentPage = i;
-    //   showPosts();
-    //   // Aggiorna lo stato attivo
-    //   const allSpans = blog.pagePositionWrapper.querySelectorAll('.position');
-    //   allSpans.forEach((el, idx) => {
-    //     el.classList.toggle('active', idx === i);
-    //   });
-    // });
     blog.pagePositionWrapper.appendChild(span);
   }
 }
