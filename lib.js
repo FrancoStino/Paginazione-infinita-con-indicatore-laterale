@@ -1,14 +1,14 @@
 /*
  Paginazione infinita con indicatore laterale
 */
-// TODO: Caricamento progressivo articoli e gestione indicatore laterale
 const blog = {
   itemsPerPage: 5,
   currentPage: 0,
   previousStatePage: 0,
   totalPage: 0,
   blogWrapper: document.getElementById('blog-w'),
-  pagePositionWrapper: document.getElementById('page-position-w')
+  pagePositionWrapper: document.getElementById('page-position-w'),
+  posts: []
 }
 
 // Creazione indicatore laterale sia in avanti che indietro dinamicamente con scroll infinito
@@ -16,37 +16,55 @@ window.addEventListener('scroll', () => {
   let { scrollHeight, clientHeight, scrollTop } = document.documentElement;
   let maxScroll = scrollHeight - clientHeight;
 
-  // Scroll verso il basso - carica pagina successiva
+  // Carica nuovi post quando si arriva in fondo
   if ((scrollTop >= maxScroll - 1) && (blog.currentPage < blog.totalPage - 1)) {
     blog.previousStatePage = blog.currentPage;
     blog.currentPage++;
     showPosts();
-    setIndicatoreAttivo();
   }
-  // Scroll verso l'alto - torna alla pagina precedente
-  else if (scrollTop <= 1 && blog.currentPage > 0) {
-    blog.previousStatePage = blog.currentPage;
-    blog.currentPage--;
-    showPosts();
-    setIndicatoreAttivo();
 
-    // Scroll automatico alla fine del contenuto della pagina precedente
-    setTimeout(() => {
-      // Calcola l'altezza che dovrebbe avere il contenuto fino alla pagina corrente
-      let targetHeight = (blog.currentPage + 1) * blog.itemsPerPage * 200; // stima altezza per post
-      window.scrollTo(0, document.documentElement.scrollHeight - window.innerHeight - 50);
-    }, 100);
-  }
+  // Aggiorna l'indicatore attivo basandosi sulla posizione dei post visibili
+  updateIndicatorBasedOnVisiblePosts();
 });
 
-function setIndicatoreAttivo() {
+function updateIndicatorBasedOnVisiblePosts() {
+  const posts = blog.blogWrapper.querySelectorAll('.blog-post');
+  let activePageIndex = 0;
+
+  // Trova quale post è più visibile nel viewport
+  let maxVisibleArea = 0;
+  let mostVisiblePostIndex = 0;
+
+  posts.forEach((post, index) => {
+    const rect = post.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+
+    // Calcola l'area visibile del post
+    const visibleTop = Math.max(0, rect.top);
+    const visibleBottom = Math.min(windowHeight, rect.bottom);
+    const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+    if (visibleHeight > maxVisibleArea) {
+      maxVisibleArea = visibleHeight;
+      mostVisiblePostIndex = index;
+    }
+  });
+
+  // Calcola la pagina dell'indicatore basandosi sul post più visibile
+  activePageIndex = Math.floor(mostVisiblePostIndex / blog.itemsPerPage);
+
+  // Aggiorna l'indicatore solo se è cambiato
+  if (activePageIndex !== blog.activeIndicatorPage) {
+    blog.activeIndicatorPage = activePageIndex;
+    setIndicatoreAttivo(activePageIndex);
+  }
+}
+
+function setIndicatoreAttivo(pageIndex) {
   let indicatori = blog.pagePositionWrapper.querySelectorAll('span');
   indicatori.forEach((span, index) => {
-    // Rimuovi active da tutti gli indicatori
     span.classList.remove('active');
-
-    // Aggiungi active solo alla pagina corrente
-    if (index === blog.currentPage) {
+    if (index === pageIndex) {
       span.classList.add('active');
     }
   });
@@ -59,42 +77,25 @@ async function initBlog() {
   blog.posts = blog.posts.slice(0, 25);
   // Calcola numero di pagine
   blog.totalPage = Math.ceil(blog.posts.length / blog.itemsPerPage);
+  blog.activeIndicatorPage = 0;
   initIndicatoriPaginazione();
   showPosts();
-  setIndicatoreAttivo(); // Imposta l'indicatore iniziale
 }
-
-initBlog();
 
 function initIndicatoriPaginazione() {
   for (let i = 0; i < blog.totalPage; i++) {
     const span = document.createElement('span');
-    span.className = 'position' + (i === blog.currentPage ? ' active' : '');
+    span.className = 'position' + (i === 0 ? ' active' : '');
     blog.pagePositionWrapper.appendChild(span);
   }
 }
 
 function showPosts() {
-  // Quando si va indietro, svuota il contenuto e ricarica tutti i post fino alla pagina corrente
-  if (blog.currentPage < blog.previousStatePage) {
-    blog.blogWrapper.innerHTML = '';
-    // Carica tutti i post dalla pagina 0 alla pagina corrente
-    for (let page = 0; page <= blog.currentPage; page++) {
-      let start = page * blog.itemsPerPage;
-      for (let i = start; i < start + blog.itemsPerPage; i++) {
-        const post = blog.posts[i];
-        if (!post) break;
-        blog.blogWrapper.innerHTML += createPostHTML(post, i);
-      }
-    }
-  } else {
-    // Quando si va avanti, aggiungi solo i nuovi post
-    let start = blog.currentPage * blog.itemsPerPage;
-    for (let i = start; i < start + blog.itemsPerPage; i++) {
-      const post = blog.posts[i];
-      if (!post) break;
-      blog.blogWrapper.innerHTML += createPostHTML(post, i);
-    }
+  let start = blog.currentPage * blog.itemsPerPage;
+  for (let i = start; i < start + blog.itemsPerPage; i++) {
+    const post = blog.posts[i];
+    if (!post) break;
+    blog.blogWrapper.innerHTML += createPostHTML(post, i);
   }
 }
 
@@ -107,3 +108,5 @@ function createPostHTML(post, index) {
     </article>
   `;
 }
+
+initBlog();
