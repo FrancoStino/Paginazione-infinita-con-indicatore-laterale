@@ -1,0 +1,75 @@
+@import url(https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap);
+
+:root {
+  --color-red: #e74c3c;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  position: relative;
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+}
+
+section#blog-w {
+  padding: 30px 30px 0 80px;
+  margin-bottom: 90px;
+}
+
+article.blog-post {
+  position: relative;
+  padding: 20px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 30px;
+}
+
+article.blog-post>h3.title {
+  margin-bottom: 16px;
+}
+
+article.blog-post>p.content {
+  margin-bottom: 16px;
+}
+
+article.blog-post>div.info {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  right: -15px;
+  top: -15px;
+  text-align: center;
+  background-color: var(--color-red);
+  border-radius: 50%;
+  color: white;
+  font-size: 14px;
+  line-height: 30px;
+}
+
+div#page-position-w {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  width: 10px;
+}
+
+div#page-position-w span.position {
+  display: block;
+  width: 10px;
+  height: 30px;
+  background-color: var(--color-red);
+  opacity: 0.5;
+  margin-bottom: 4px;
+  border-radius: 2px;
+}
+
+
+div#page-position-w span.position.active {
+  opacity: 1;
+  color: white;
+}
